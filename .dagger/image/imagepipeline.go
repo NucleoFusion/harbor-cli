@@ -20,6 +20,7 @@ func InitImagePipeline(dag *dagger.Client, source *dagger.Directory,
 	registryAddress, registryUsername, appVersion, goVersion string,
 ) *ImagePipeline {
 	return &ImagePipeline{
+		source:                     source,
 		dag:                        dag,
 		RegistryPassword:           registryPassword,
 		GithubToken:                githubToken,
