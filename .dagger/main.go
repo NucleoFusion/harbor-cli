@@ -100,6 +100,7 @@ func (m *HarborCli) PublishAndSignImage(ctx context.Context, source *dagger.Dire
 	if err != nil {
 		return err
 	}
+	fmt.Println(strings.Join(imageAddr, "\n"))
 
 	return nil
 }

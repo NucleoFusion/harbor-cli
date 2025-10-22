@@ -14,7 +14,7 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 	version := s.appVersion
 	archs := []string{"amd64", "arm64"}
 	releaseImages := []*dagger.Container{}
-	imageTags := []string{"latest", s.appVersion}
+	imageTags := []string{s.appVersion, "latest"}
 
 	for i, tag := range imageTags {
 		imageTags[i] = strings.TrimSpace(tag)
