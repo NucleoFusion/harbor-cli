@@ -64,11 +64,11 @@ func (m *HarborCli) Pipeline(ctx context.Context, source *dagger.Directory,
 	}
 	fmt.Println(out)
 
-	// Publishing repo
-	err = pipe.AptRepoBuild(ctx, dist, githubToken)
-	if err != nil {
-		return nil, err
-	}
+	// // Publishing repo
+	// err = pipe.AptRepoBuild(ctx, dist, githubToken)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return dist, err
 }
