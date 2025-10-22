@@ -247,14 +247,13 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: |
+          args: > 
             pipeline
             --source=.
             --github-token=env://GITHUB_TOKEN
             --registry-password=env://REGISTRY_PASSWORD
             --registry-username=${{ vars.REGISTRY_USERNAME }}
             --registry-addr=${{ vars.REGISTRY_ADDRESS }}
-
       # - name: Publish and Sign Tagged Image
       #   if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
       #   uses: ./.github/actions/publish-and-sign
