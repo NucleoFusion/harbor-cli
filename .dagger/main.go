@@ -63,18 +63,18 @@ func (m *HarborCli) Pipeline(ctx context.Context, source *dagger.Directory,
 	}
 	fmt.Println(out)
 
-	// Publishing repo
-	err = pipe.AptRepoBuild(ctx, dist, githubToken)
-	if err != nil {
-		return nil, err
-	}
-
 	// Publishing Image
 	res := pipe.PublishImage(ctx, dist, registryAddr, registryUsername, []string{"latest", m.AppVersion}, registryPassword)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println(strings.Join(res, "\n"))
+
+	// Publishing repo
+	err = pipe.AptRepoBuild(ctx, dist, githubToken)
+	if err != nil {
+		return nil, err
+	}
 
 	return dist, err
 }
