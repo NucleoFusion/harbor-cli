@@ -56,7 +56,7 @@ func (s *Pipeline) PublishImage(
 	for _, imageTag := range imageTags {
 		addr, err := s.dag.Container().WithRegistryAuth(registry, registryUsername, registryPassword).
 			Publish(ctx,
-				fmt.Sprintf("%s/%s/harbor-cli:%s", "docker.io", registryUsername, imageTag),
+				fmt.Sprintf("%s/%s/harbor-cli:%s", registry, registryUsername, imageTag),
 				dagger.ContainerPublishOpts{PlatformVariants: releaseImages},
 			)
 		if err != nil {
