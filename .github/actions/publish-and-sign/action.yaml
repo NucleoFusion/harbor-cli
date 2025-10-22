@@ -43,4 +43,4 @@ runs:
       with:
         version: ${{ steps.dagger_version.outputs.version }}
         verb: call
-        args: "publish-and-sign-image --source=. --registry-address='${{ env.REGISTRY_ADDRESS }}' --registry-username='${{ env.REGISTRY_USERNAME }}' --registry-password=env://REGISTRY_PASSWORD --github-token=env://GITHUB_TOKEN --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+        args: "publish-and-sign-image --source=. --registry-address='${{ env.REGISTRY_ADDRESS }}' --registry-username='${{ env.REGISTRY_USERNAME }}' --registry-password=env://REGISTRY_PASSWORD --github-token=env://GITHUB_TOKEN --actions-idtoken-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL --actions-idtoken-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN"
