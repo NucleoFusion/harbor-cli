@@ -245,7 +245,7 @@ jobs:
           args: pipeline --source=. --github-token=env://GITHUB_TOKEN --registry-password=env://REGISTRY_PASSWORD --registry-username=${{ vars.REGISTRY_USERNAME }} --registry-addr=${{ vars.REGISTRY_ADDRESS }}
   
       - name: Publish and Sign Snapshot Image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
         uses: ./.github/actions/publish-and-sign
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
