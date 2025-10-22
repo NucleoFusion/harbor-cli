@@ -1,4 +1,4 @@
-package pipeline
+package image
 
 import (
 	"context"
@@ -10,23 +10,17 @@ import (
 )
 
 // PublishImage publishes a container image to a registry with a specific tag and signs it using Cosign.
-func (s *Pipeline) PublishImage(
-	ctx context.Context,
-	dist *dagger.Directory,
-	registry, registryUsername string,
-	// +optional
-	// +default=["latest"]
-	imageTags []string,
-	registryPassword *dagger.Secret,
-) []string {
+func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory) []string {
 	version := s.appVersion
 	archs := []string{"amd64", "arm64"}
 	releaseImages := []*dagger.Container{}
+	imageTags := []string{"latest", s.appVersion}
 
 	for i, tag := range imageTags {
 		imageTags[i] = strings.TrimSpace(tag)
 		imageTags[i] = strings.TrimPrefix(imageTags[i], "v")
 	}
+
 	fmt.Printf("provided tags: %s\n", imageTags)
 
 	// Get current time for image creation timestamp
@@ -54,9 +48,9 @@ func (s *Pipeline) PublishImage(
 
 	imageAddrs := []string{}
 	for _, imageTag := range imageTags {
-		addr, err := s.dag.Container().WithRegistryAuth(registry, registryUsername, registryPassword).
+		addr, err := s.dag.Container().WithRegistryAuth(s.RegistryAddress, s.RegistryUsername, s.RegistryPassword).
 			Publish(ctx,
-				fmt.Sprintf("%s/%s/harbor-cli:%s", registry, registryUsername, imageTag),
+				fmt.Sprintf("%s/%s/harbor-cli:%s", s.RegistryAddress, s.RegistryUsername, imageTag),
 				dagger.ContainerPublishOpts{PlatformVariants: releaseImages},
 			)
 		if err != nil {
@@ -65,5 +59,6 @@ func (s *Pipeline) PublishImage(
 		fmt.Printf("Published image address: %s\n", addr)
 		imageAddrs = append(imageAddrs, addr)
 	}
+
 	return imageAddrs
 }
