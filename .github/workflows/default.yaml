@@ -248,10 +248,10 @@ jobs:
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
         uses: ./.github/actions/publish-and-sign
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS }}
           REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME }}
         env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          REGISTRY_PASSWORD: ${{ env.REGISTRY_PASSWORD }}
           ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
           ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
