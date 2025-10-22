@@ -128,6 +128,10 @@ func (m *HarborCli) init(ctx context.Context, source *dagger.Directory) error {
 		m.GoVersion = match[1]
 	}
 
+	if m.GoVersion == "" {
+		m.GoVersion = "latest"
+	}
+
 	m.Source = source
 	m.AppVersion = strings.TrimSpace(out)
 
