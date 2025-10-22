@@ -103,6 +103,7 @@ jobs:
           fi
 
   # TODO: Add Dry-run support 
+  
   # test-release:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -228,16 +229,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Push images
-      #   if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
-      #   uses: ./.github/actions/publish-and-sign
-      #   with:
-      #     IMAGE_TAGS: latest, ${{ github.ref_name }}
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      #     REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS }}
-      #     REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME }}
-      
       - name: Pull Dagger Engine
         run: docker pull registry.dagger.io/engine:v0.19.2
 
@@ -250,13 +241,5 @@ jobs:
         with:
           version: "latest"
           verb: call
+          # Using a single large line since, dagger parsing with folded/piped command fails due to improper formatting error
           args: pipeline --source=. --github-token=env://GITHUB_TOKEN --registry-password=env://REGISTRY_PASSWORD --registry-username=${{ vars.REGISTRY_USERNAME }} --registry-addr=${{ vars.REGISTRY_ADDRESS }}
-      # - name: Publish and Sign Tagged Image
-      #   if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
-      #   uses: ./.github/actions/publish-and-sign
-      #   with:
-      #     IMAGE_TAGS: "latest, ${{ github.ref_name }}"
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      #     REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS }}
-      #     REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME }}
