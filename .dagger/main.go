@@ -22,8 +22,7 @@ type HarborCli struct {
 // -> Publishing to release page -> Publishing to apt
 func (m *HarborCli) Pipeline(ctx context.Context, source *dagger.Directory,
 	// Secrets
-	githubToken *dagger.Secret, registryPassword *dagger.Secret,
-	registryAddr string, registryUsername string,
+	githubToken *dagger.Secret,
 ) (*dagger.Directory, error) {
 	err := m.init(ctx, source)
 	if err != nil {
