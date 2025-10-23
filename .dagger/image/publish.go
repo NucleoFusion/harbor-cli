@@ -18,6 +18,7 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 
 	// Debug
 	fmt.Println("RegistryAddress:", s.RegistryAddress)
+	fmt.Println("RegistryUsername:", s.RegistryUsername)
 	fmt.Println("AppVersion:", s.appVersion)
 	fmt.Println("GoVersion:", s.goVersion)
 
@@ -53,7 +54,7 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 
 	imageAddrs := []string{}
 	for _, imageTag := range imageTags {
-		fmt.Printf("%s/%s/harbor-cli:%s", s.RegistryAddress, s.RegistryUsername, imageTag)
+		fmt.Printf("%s/%s/harbor-cli:%s \n", s.RegistryAddress, s.RegistryUsername, imageTag)
 		addr, err := s.dag.Container().WithRegistryAuth(s.RegistryAddress, s.RegistryUsername, s.RegistryPassword).
 			Publish(ctx,
 				fmt.Sprintf("%s/%s/harbor-cli:%s", s.RegistryAddress, s.RegistryUsername, imageTag),
