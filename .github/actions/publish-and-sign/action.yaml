@@ -24,6 +24,7 @@ runs:
     - name: Debug OIDC Environment
       shell: bash
       run: |
+        echo $REGISTRY_PASSWORD
         echo "ACTIONS_ID_TOKEN_REQUEST_URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
         echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN present: $([[ -n \"$ACTIONS_ID_TOKEN_REQUEST_TOKEN\" ]] && echo yes || echo no)"
         cosign version
