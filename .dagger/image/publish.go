@@ -53,6 +53,7 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 
 	imageAddrs := []string{}
 	for _, imageTag := range imageTags {
+		fmt.Printf("%s/%s/harbor-cli:%s", s.RegistryAddress, s.RegistryUsername, imageTag)
 		addr, err := s.dag.Container().WithRegistryAuth(s.RegistryAddress, s.RegistryUsername, s.RegistryPassword).
 			Publish(ctx,
 				fmt.Sprintf("%s/%s/harbor-cli:%s", s.RegistryAddress, s.RegistryUsername, imageTag),
