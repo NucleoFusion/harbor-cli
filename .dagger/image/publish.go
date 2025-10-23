@@ -16,6 +16,11 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 	releaseImages := []*dagger.Container{}
 	imageTags := []string{s.appVersion, "latest"}
 
+	// Debug
+	fmt.Println("RegistryAddress:", s.RegistryAddress)
+	fmt.Println("AppVersion:", s.appVersion)
+	fmt.Println("GoVersion:", s.goVersion)
+
 	for i, tag := range imageTags {
 		imageTags[i] = strings.TrimSpace(tag)
 		imageTags[i] = strings.TrimPrefix(imageTags[i], "v")

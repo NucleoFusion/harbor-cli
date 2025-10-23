@@ -29,5 +29,6 @@ func InitImagePipeline(dag *dagger.Client, source *dagger.Directory,
 		ActionsIDTokenRequestURL:   actionsIDTokenRequestURL,
 		ActionsIDTokenRequestToken: actionsIDTokenRequestToken,
 		appVersion:                 appVersion,
+		goVersion:                  goVersion,
 	}
 }

@@ -76,10 +76,10 @@ func (m *HarborCli) Pipeline(ctx context.Context, source *dagger.Directory,
 func (m *HarborCli) PublishAndSignImage(ctx context.Context, source *dagger.Directory,
 	registryPassword, githubToken, actionsIDTokenRequestURL, actionsIDTokenRequestToken *dagger.Secret,
 	registryAddress, registryUsername string,
-) error {
+) (*dagger.Directory, error) {
 	err := m.init(ctx, source)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	pipe := image.InitImagePipeline(dag, source, registryPassword, githubToken, actionsIDTokenRequestURL, actionsIDTokenRequestToken,
@@ -90,7 +90,7 @@ func (m *HarborCli) PublishAndSignImage(ctx context.Context, source *dagger.Dire
 	// Building Binaries
 	dist, err = pipe.Build(ctx, dist)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Publishing Image
@@ -98,11 +98,11 @@ func (m *HarborCli) PublishAndSignImage(ctx context.Context, source *dagger.Dire
 
 	_, err = pipe.Sign(ctx, imageAddr[0])
 	if err != nil {
-		return err
+		return nil, err
 	}
 	fmt.Println(strings.Join(imageAddr, "\n"))
 
-	return nil
+	return dist, nil
 }
 
 func (m *HarborCli) init(ctx context.Context, source *dagger.Directory) error {
