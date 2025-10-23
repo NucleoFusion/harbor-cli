@@ -21,6 +21,8 @@ func (s *ImagePipeline) PublishImage(ctx context.Context, dist *dagger.Directory
 	fmt.Println("RegistryUsername:", s.RegistryUsername)
 	fmt.Println("AppVersion:", s.appVersion)
 	fmt.Println("GoVersion:", s.goVersion)
+	pw, _ := s.RegistryPassword.Plaintext(ctx)
+	fmt.Println("Registry password len:", len(pw))
 
 	for i, tag := range imageTags {
 		imageTags[i] = strings.TrimSpace(tag)
