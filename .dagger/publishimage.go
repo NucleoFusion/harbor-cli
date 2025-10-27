@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"dagger/harbor-cli/internal/dagger"
-	"dagger/harbor-cli/utils"
 )
 
 func (m *HarborCli) PublishImageAndSign(
@@ -26,12 +25,9 @@ func (m *HarborCli) PublishImageAndSign(
 ) (string, error) {
 	m.init(ctx, source)
 
-	imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, imageTags, registryPassword)
-	if err != nil {
-		return "", fmt.Errorf("failed to publish image: %w", err)
-	}
+	imageAddrs := m.PublishImage(ctx, registry, registryUsername, imageTags, registryPassword)
 
-	_, err = m.Sign(
+	_, err := m.Sign(
 		ctx,
 		githubToken,
 		actionsIdTokenRequestUrl,
@@ -55,17 +51,9 @@ func (m *HarborCli) PublishImage(
 	// +default=["latest"]
 	imageTags []string,
 	registryPassword *dagger.Secret,
-) ([]string, error) {
-	version := m.AppVersion
-	archs := []string{"amd64", "arm64"}
-
-	// Building Binaries
-	dist := dag.Directory()
-	dist, err := m.build(ctx, dist)
-	if err != nil {
-		return []string{}, err
-	}
-
+) []string {
+	version := getVersion(imageTags)
+	builders := m.build(ctx, version)
 	releaseImages := []*dagger.Container{}
 
 	for i, tag := range imageTags {
@@ -79,14 +67,18 @@ func (m *HarborCli) PublishImage(
 	// Get current time for image creation timestamp
 	creationTime := time.Now().UTC().Format(time.RFC3339)
 
-	for _, arch := range archs {
-		// Defining binary file name
-		binName := fmt.Sprintf("harbor-cli_%s_%s_%s", m.AppVersion, "linux", arch)
+	for _, builder := range builders {
+		os, _ := builder.EnvVariable(ctx, "GOOS")
+		arch, _ := builder.EnvVariable(ctx, "GOARCH")
 
-		ctr := dag.Container(dagger.ContainerOpts{Platform: dagger.Platform("linux/" + arch)}).
+		if os != "linux" {
+			continue
+		}
+
+		ctr := dag.Container(dagger.ContainerOpts{Platform: dagger.Platform(os + "/" + arch)}).
 			From("alpine:latest").
 			WithWorkdir("/").
-			WithFile("/harbor", dist.File(binName)).
+			WithFile("/harbor", builder.File("./harbor")).
 			WithExec([]string{"ls", "-al"}).
 			WithExec([]string{"./harbor", "version"}).
 			// Add required metadata labels for ArtifactHub
@@ -113,44 +105,57 @@ func (m *HarborCli) PublishImage(
 		fmt.Printf("Published image address: %s\n", addr)
 		imageAddrs = append(imageAddrs, addr)
 	}
-
-	return imageAddrs, nil
+	return imageAddrs
 }
 
-func (s *HarborCli) build(ctx context.Context, dist *dagger.Directory) (*dagger.Directory, error) {
-	goarch := []string{"amd64", "arm64"}
+func (m *HarborCli) build(
+	ctx context.Context,
+	version string,
+) []*dagger.Container {
+	var builds []*dagger.Container
 
-	for _, arch := range goarch {
-		// Defining binary file name
-		binName := fmt.Sprintf("harbor-cli_%s_%s_%s", s.AppVersion, "linux", arch)
+	fmt.Println("🛠️  Building with Dagger...")
+	oses := []string{"linux", "darwin", "windows"}
+	arches := []string{"amd64", "arm64"}
 
-		builder := dag.Container().
-			From("golang:"+s.GoVersion).
-			WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+s.GoVersion)).
-			WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
-			WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+s.GoVersion)).
-			WithEnvVariable("GOCACHE", "/go/build-cache").
-			WithMountedDirectory("/src", s.Source).
-			WithWorkdir("/src").
-			WithEnvVariable("GOOS", "linux").
-			WithEnvVariable("GOARCH", arch).
-			WithEnvVariable("CGO_ENABLED", "0")
+	// temp container with git installed
+	temp := dag.Container().
+		From("alpine:latest").
+		WithMountedDirectory("/src", m.Source).
+		// --no-cache option is to avoid caching the apk package index
+		WithExec([]string{"apk", "add", "--no-cache", "git"}).
+		WithWorkdir("/src")
 
-		gitCommit, _ := builder.WithExec([]string{"git", "rev-parse", "--short", "HEAD", "--always"}).Stdout(ctx)
-		buildTime := time.Now().UTC().Format(time.RFC3339)
+	gitCommit, _ := temp.WithExec([]string{"git", "rev-parse", "--short", "HEAD", "--always"}).Stdout(ctx)
+	buildTime := time.Now().UTC().Format(time.RFC3339)
+	ldflagsArgs := fmt.Sprintf(`-X github.com/goharbor/harbor-cli/cmd/harbor/internal/version.Version=%s
+						  -X github.com/goharbor/harbor-cli/cmd/harbor/internal/version.GoVersion=%s
+						  -X github.com/goharbor/harbor-cli/cmd/harbor/internal/version.BuildTime=%s
+						  -X github.com/goharbor/harbor-cli/cmd/harbor/internal/version.GitCommit=%s
+				`, version, m.GoVersion, buildTime, gitCommit)
 
-		ldflagsArgs := utils.LDFlags(ctx, s.AppVersion, s.GoVersion, buildTime, gitCommit)
+	for _, goos := range oses {
+		for _, goarch := range arches {
+			bin_path := fmt.Sprintf("build/%s/%s/", goos, goarch)
+			builder := dag.Container().
+				From("golang:"+m.GoVersion+"-alpine").
+				WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+m.GoVersion)).
+				WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
+				WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+m.GoVersion)).
+				WithEnvVariable("GOCACHE", "/go/build-cache").
+				WithMountedDirectory("/src", m.Source).
+				WithWorkdir("/src").
+				WithEnvVariable("GOOS", goos).
+				WithEnvVariable("GOARCH", goarch).
+				WithExec([]string{"go", "build", "-ldflags", ldflagsArgs, "-o", bin_path + "harbor", "/src/cmd/harbor/main.go"}).
+				WithWorkdir(bin_path).
+				WithExec([]string{"ls"}).
+				WithEntrypoint([]string{"./harbor"})
 
-		builder = builder.WithExec([]string{
-			"bash", "-c",
-			fmt.Sprintf(`set -ex && go env && go build -v -ldflags "%s" -o /bin/%s /src/cmd/harbor/main.go`, ldflagsArgs, binName),
-		})
-
-		file := builder.File("/bin/" + binName)                            // Taking file from container
-		dist = dist.WithFile(fmt.Sprintf("%s/%s", "linux", binName), file) // Adding file(bin) to dist directory
+			builds = append(builds, builder)
+		}
 	}
-
-	return dist, nil
+	return builds
 }
 
 // Sign signs a container image using Cosign, works also with GitHub Actions
@@ -189,4 +194,13 @@ func (m *HarborCli) Sign(ctx context.Context,
 			imageAddr,
 			"--timeout", "1m",
 		}).Stdout(ctx)
+}
+
+func getVersion(tags []string) string {
+	for _, tag := range tags {
+		if strings.HasPrefix(tag, "v") {
+			return tag
+		}
+	}
+	return "latest"
 }
