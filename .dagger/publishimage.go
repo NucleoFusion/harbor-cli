@@ -96,7 +96,7 @@ func (m *HarborCli) PublishImage(
 	for _, imageTag := range imageTags {
 		addr, err := dag.Container().WithRegistryAuth(registry, registryUsername, registryPassword).
 			Publish(ctx,
-				fmt.Sprintf("%s/%s/harbor-cli:%s", registry, "harbor-cli", imageTag),
+				fmt.Sprintf("%s/%s/harbor-cli:%s", registry, registryUsername, imageTag),
 				dagger.ContainerPublishOpts{PlatformVariants: releaseImages},
 			)
 		if err != nil {
