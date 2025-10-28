@@ -1,0 +1,15 @@
+Package: harbor-cli
+Version: 1.0.60
+Architecture: arm64
+Maintainer: NucleoFusion <lakshit.singh.mail@gmail.com>
+Installed-Size: 21188
+Filename: pool/main/m/harbor-cli_v1.0.60_arm64.deb
+Size: 10482104
+MD5sum: 05feb0b69155084066b8fdc625fa07bb
+SHA1: 4b9a2a85c68cb9509b9c9ebb1910d18e63763de9
+SHA256: 97954ffb93e2474e6247a8ab05270e2d96f41fbcb34d20641aaeb57cab9cbfc5
+Section: default
+Priority: extra
+Description: Harbor CLI — a command-line interface for interacting with your Harbor container registry.
+License: Apache 2.0
+
