@@ -51,7 +51,7 @@ runs:
           --registry=${{ env.REGISTRY_ADDRESS }} \
           --registry-username=${{ env.REGISTRY_USERNAME }} \
           --registry-password=env://REGISTRY_PASSWORD \
-          --image-tags=${{ env.IMAGE_TAGS}} \
+          --image-tags='${{ env.IMAGE_TAGS}}' \
           --github-token=env://GITHUB_TOKEN \
           --actions-id-token-request-url=$ACTIONS_ID_TOKEN_REQUEST_URL \
           --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN"
