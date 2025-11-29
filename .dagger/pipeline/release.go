@@ -2,7 +2,6 @@ package pipeline
 
 import (
 	"context"
-	"fmt"
 
 	"dagger/harbor-cli/internal/dagger"
 	"dagger/harbor-cli/utils"
@@ -34,7 +33,7 @@ func (s *Pipeline) PublishRelease(ctx context.Context, dist *dagger.Directory, t
 	return ctr.
 		WithWorkdir("/src").
 		// Creating Release
-		WithExec([]string{"gh", "release", "create", s.appVersion, "--title", fmt.Sprintf("Release %s", s.appVersion)}).
+		WithExec([]string{"gh", "release", "create", s.appVersion, "--generate-notes"}).
 		WithExec(cmd).
 		Stdout(ctx)
 }
