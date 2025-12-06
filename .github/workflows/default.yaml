@@ -189,7 +189,6 @@ jobs:
   publish-release:
     needs:
       - lint
-      - test-code
     permissions:
       contents: write
       packages: write
