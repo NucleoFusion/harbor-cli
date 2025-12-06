@@ -25,8 +25,6 @@ func (m *HarborCli) Build(ctx context.Context,
 	goos := []string{"linux", "darwin", "windows"}
 	goarch := []string{"amd64", "arm64"}
 
-	dist := dag.Directory()
-
 	for _, os := range goos {
 		for _, arch := range goarch {
 			// Defining binary file name
@@ -56,10 +54,10 @@ func (m *HarborCli) Build(ctx context.Context,
 				fmt.Sprintf(`set -ex && go env && go build -v -ldflags "%s" -o /bin/%s /src/cmd/harbor/main.go`, ldflagsArgs, binName),
 			})
 
-			file := builder.File("/bin/" + binName)                     // Taking file from container
-			dist = dist.WithFile(fmt.Sprintf("/bin/%s", binName), file) // Adding file(bin) to dist directory
+			file := builder.File("/bin/" + binName)                             // Taking file from container
+			buildDir = buildDir.WithFile(fmt.Sprintf("/bin/%s", binName), file) // Adding file(bin) to dist directory
 		}
 	}
 
-	return dist, nil
+	return buildDir, nil
 }

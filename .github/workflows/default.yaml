@@ -218,7 +218,7 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: "build --build-dir=./dist"
+          args: "build --build-dir=./dist export --path=./dist"
       
       - name: Archiving Binaries 
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
@@ -226,7 +226,7 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: "archive --build-dir=./dist"
+          args: "archive --build-dir=./dist export --path=./dist"
 
       - name: NFPM Build (deb/rpm) 
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
@@ -234,7 +234,7 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: "nfpm-build --build-dir=./dist"
+          args: "nfpm-build --build-dir=./dist export --path=./dist"
 
       - name: Creating Checksum 
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
@@ -242,7 +242,7 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: "checksum --build-dir=./dist"
+          args: "checksum --build-dir=./dist export --path=./dist"
 
       - name: Publish Release 
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
@@ -252,7 +252,7 @@ jobs:
         with:
           version: "latest"
           verb: call
-          args: "publish-release --build-dir=./dist --token=env://GITHUB_TOKEN"
+          args: "publish-release --build-dir=./dist --token=env://GITHUB_TOKEN export --path=./dist"
 
       # - name: Publish and Sign Tagged Image
       #   if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
