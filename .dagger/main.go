@@ -10,9 +10,10 @@ import (
 )
 
 type HarborCli struct {
-	Source     *dagger.Directory `json:"-"`           // Source Directory where code resides
-	AppVersion string            `json:"app_version"` // Current Version of the app, acquired from git tags
-	GoVersion  string            `json:"go_version"`  // Go Version used in the current release, acquired from the go.mod file
+	Source        *dagger.Directory // Source Directory where code resides
+	AppVersion    string            // Current Version of the app, acquired from git tags
+	GoVersion     string            // Go Version used in the current release, acquired from the go.mod file
+	IsInitialized bool
 }
 
 // The _full_ pipeline for CI/CD
@@ -92,6 +93,7 @@ func (m *HarborCli) init(ctx context.Context, source *dagger.Directory) error {
 
 	m.Source = source
 	m.AppVersion = strings.TrimSpace(out)
+	m.IsInitialized = true
 
 	return nil
 }

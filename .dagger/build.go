@@ -10,19 +10,16 @@ import (
 )
 
 func (m *HarborCli) Build(ctx context.Context,
-	// +optional
 	buildDir *dagger.Directory,
 	// +ignore=[".gitignore"]
 	// +defaultPath="."
 	source *dagger.Directory,
 ) (*dagger.Directory, error) {
-	if buildDir == nil {
-		buildDir = dag.Directory()
-	}
-
-	err := m.init(ctx, source)
-	if err != nil {
-		return nil, err
+	if !m.IsInitialized {
+		err := m.init(ctx, source)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	goos := []string{"linux", "darwin", "windows"}

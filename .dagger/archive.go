@@ -13,9 +13,11 @@ func (m *HarborCli) Archive(ctx context.Context,
 	// +defaultPath="."
 	source *dagger.Directory,
 ) (*dagger.Directory, error) {
-	err := m.init(ctx, source)
-	if err != nil {
-		return nil, err
+	if !m.IsInitialized {
+		err := m.init(ctx, source)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	entries, err := buildDir.Entries(ctx)
