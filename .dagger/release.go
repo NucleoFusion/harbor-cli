@@ -13,6 +13,13 @@ func (m *HarborCli) PublishRelease(ctx context.Context,
 	source *dagger.Directory,
 	token *dagger.Secret,
 ) (string, error) {
+	if !m.IsInitialized {
+		err := m.init(ctx, source)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	bins, err := DistBinaries(ctx, dag, buildDir)
 	if err != nil {
 		return "", err
