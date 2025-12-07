@@ -31,13 +31,11 @@ runs:
       uses: sigstore/cosign-installer@v3.7.0
 
     - name: Checkout repo
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Checkout repo
-      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
