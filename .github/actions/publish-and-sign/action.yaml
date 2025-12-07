@@ -35,21 +35,12 @@ runs:
       with:
         fetch-depth: 0
 
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
     - name: Check Env Variables
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: cosign env
   
-    - name: TESTING
-      shell: bash
-      run: "echo ${{ inputs.build_dir != '' ? format('--build-dir={0}', inputs.build_dir) : '' }}"
-      
     - name: Publish and Sign Snapshot Image
       uses: dagger/dagger-for-github@v7
       env:
