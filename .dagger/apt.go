@@ -45,8 +45,8 @@ func (m *HarborCli) AptBuild(ctx context.Context,
 
 		container = container.WithExec([]string{
 			"bash", "-c",
-			fmt.Sprintf("mkdir -p %s && dpkg-scanpackages -a %s %s /dev/null > %s/Packages && gzip -9c %s/Packages > %s/Packages.gz",
-				pkgDir, arch, poolDir, pkgDir, pkgDir, pkgDir),
+			fmt.Sprintf("mkdir -p %s && dpkg-scanpackages -a %s %s /dev/null > %s/Packages && gzip -9c %s/Packages > %s/Packages.gz && rm -rf %s/Packages",
+				pkgDir, arch, poolDir, pkgDir, pkgDir, pkgDir, pkgDir),
 		})
 	}
 

@@ -48,8 +48,8 @@ runs:
   
     - name: TESTING
       shell: bash
-      run: ${{ inputs.build_dir != '' ? format('--build-dir={0}', inputs.build_dir) : '' }}
-
+      run: "echo ${{ inputs.build_dir != '' ? format('--build-dir={0}', inputs.build_dir) : '' }}"
+      
     - name: Publish and Sign Snapshot Image
       uses: dagger/dagger-for-github@v7
       env:
