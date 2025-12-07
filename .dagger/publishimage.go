@@ -19,7 +19,7 @@ func (m *HarborCli) PublishImageAndSign(
 	registry string,
 	registryUsername string,
 	registryPassword *dagger.Secret,
-	imageTags []string,
+	imageTags string,
 	// +optional
 	githubToken *dagger.Secret,
 	// +optional
@@ -34,7 +34,7 @@ func (m *HarborCli) PublishImageAndSign(
 		}
 	}
 
-	imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, imageTags, buildDir, source, registryPassword)
+	imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, strings.Split(imageTags, ","), buildDir, source, registryPassword)
 	if err != nil {
 		return "", err
 	}
@@ -154,7 +154,7 @@ func (m *HarborCli) PublishImage(
 				dagger.ContainerPublishOpts{PlatformVariants: releaseImages},
 			)
 		if err != nil {
-			panic(err)
+			return []string{}, err
 		}
 
 		fmt.Printf("Published image address: %s\n", addr)

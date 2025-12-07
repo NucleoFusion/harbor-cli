@@ -274,7 +274,7 @@ jobs:
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
         uses: ./.github/actions/publish-and-sign
         with:
-          IMAGE_TAGS: "latest, ${{ github.ref_name }}"
+          IMAGE_TAGS: "latest,${{ github.ref_name }}"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
           REGISTRY_ADDRESS: ${{ vars.REGISTRY_ADDRESS }}
