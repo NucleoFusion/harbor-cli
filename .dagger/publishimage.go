@@ -132,7 +132,7 @@ func (m *HarborCli) PublishImage(
 				WithWorkdir("/").
 				WithFile("/harbor", buildDir.File(filepath)).
 				WithExec([]string{"ls", "-al"}).
-				WithExec([]string{"./harbor", "version"}).
+				WithExec([]string{"/harbor", "version"}).
 				// Add required metadata labels for ArtifactHub
 				WithLabel("org.opencontainers.image.created", creationTime).
 				WithLabel("org.opencontainers.image.description", "Harbor CLI - A command-line interface for CNCF Harbor, the cloud native registry!").
