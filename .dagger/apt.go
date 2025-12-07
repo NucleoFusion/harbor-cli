@@ -102,10 +102,8 @@ EOF`,
 // │       ├── Release
 // │       └── main/
 // │           ├── binary-amd64/
-// │           │   ├── Packages
 // │           │   └── Packages.gz
 // │           └── binary-arm64/
-// │               ├── Packages
 // │               └── Packages.gz
 // └── pool/
 //     └── main/

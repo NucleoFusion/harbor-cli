@@ -264,6 +264,12 @@ jobs:
           verb: call
           args: "apt-build --build-dir=./dist --token=env://GITHUB_TOKEN "
 
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dir
+          path: ./dist
+
       - name: Publish and Sign Tagged Image
         if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/'))
         uses: ./.github/actions/publish-and-sign

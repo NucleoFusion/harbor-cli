@@ -30,10 +30,11 @@ runs:
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.7.0
 
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - name: Get Build Artifact
+      if:  ${{ inputs.BUILD_DIR != '' }} 
+      uses: actions/download-artifact@v4
       with:
-        fetch-depth: 0
+        name: build-dir
 
     - name: Check Env Variables
       shell: bash
