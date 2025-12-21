@@ -35,6 +35,7 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: build-dir
+        path {{ inputs.BUILD_DIR }}
 
     - name: Check Env Variables
       shell: bash
@@ -62,4 +63,4 @@ runs:
           --github-token=env://GITHUB_TOKEN \
           --actions-id-token-request-url=$ACTIONS_ID_TOKEN_REQUEST_URL \
           --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN \
-          ${{ inputs.build_dir && format('--build-dir={0}', inputs.build_dir) || '' }}" # if BUILD_DIR provided, then it is given, otherwise empty string
+          ${{ inputs.BUILD_DIR && format('--build-dir={0}', inputs.BUILD_DIR) || '' }}" # if BUILD_DIR provided, then it is given, otherwise empty string
