@@ -35,7 +35,7 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: build-dir
-        path {{ inputs.BUILD_DIR }}
+        path: {{ inputs.BUILD_DIR }}
 
     - name: Check Env Variables
       shell: bash
