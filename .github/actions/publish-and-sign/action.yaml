@@ -20,6 +20,7 @@ inputs:
   BUILD_DIR:
     description: 'Build Directory path'
     required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -42,7 +43,17 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: cosign env
-  
+ 
+
+    - name: Build optional build-dir arg
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.BUILD_DIR }}" ]; then
+          echo "DAGGER_BUILD_DIR_ARG=--build-dir=${{ inputs.BUILD_DIR }}" >> $GITHUB_ENV
+        else
+          echo "DAGGER_BUILD_DIR_ARG=" >> $GITHUB_ENV
+        fi
+
     - name: Publish and Sign Snapshot Image
       uses: dagger/dagger-for-github@v7
       env:
@@ -63,4 +74,4 @@ runs:
           --github-token=env://GITHUB_TOKEN \
           --actions-id-token-request-url=$ACTIONS_ID_TOKEN_REQUEST_URL \
           --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN \
-          ${{ inputs.BUILD_DIR && format('--build-dir={0}', inputs.BUILD_DIR) || '' }}" # if BUILD_DIR provided, then it is given, otherwise empty string
+          $DAGGER_BUILD_DIR_ARG
