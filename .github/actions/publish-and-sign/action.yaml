@@ -32,7 +32,6 @@ runs:
       uses: sigstore/cosign-installer@v3.7.0
 
     - name: Get Build Artifact
-      if:  ${{ inputs.BUILD_DIR != '' }} 
       uses: actions/download-artifact@v4
       with:
         name: build-dir
@@ -73,6 +72,6 @@ runs:
           --registry-password=env://REGISTRY_PASSWORD
           --image-tags=${{ env.IMAGE_TAGS}}
           --github-token=env://GITHUB_TOKEN
-          --actions-id-token-request-url='$ACTIONS_ID_TOKEN_REQUEST_URL'
+          --actions-id-token-request-url=env://$ACTIONS_ID_TOKEN_REQUEST_URL
           --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN
           $DAGGER_BUILD_DIR_ARG

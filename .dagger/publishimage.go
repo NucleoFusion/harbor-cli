@@ -25,7 +25,7 @@ func (m *HarborCli) PublishImageAndSign(
 	// +optional
 	actionsIdTokenRequestToken *dagger.Secret,
 	// +optional
-	actionsIdTokenRequestUrl string,
+	actionsIdTokenRequestUrl *dagger.Secret,
 ) (string, error) {
 	if !m.IsInitialized {
 		err := m.init(ctx, source)
@@ -219,7 +219,7 @@ func (m *HarborCli) Sign(ctx context.Context,
 	// +optional
 	githubToken *dagger.Secret,
 	// +optional
-	actionsIdTokenRequestUrl string,
+	actionsIdTokenRequestUrl *dagger.Secret,
 	// +optional
 	actionsIdTokenRequestToken *dagger.Secret,
 	registryUsername string,
@@ -232,12 +232,12 @@ func (m *HarborCli) Sign(ctx context.Context,
 
 	// If githubToken is provided, use it to sign the image
 	if githubToken != nil {
-		if actionsIdTokenRequestUrl == "" || actionsIdTokenRequestToken == nil {
+		if actionsIdTokenRequestUrl == nil || actionsIdTokenRequestToken == nil {
 			return "", fmt.Errorf("actionsIdTokenRequestUrl (exist=%s) and actionsIdTokenRequestToken (exist=%t) must be provided when githubToken is provided", actionsIdTokenRequestUrl, actionsIdTokenRequestToken != nil)
 		}
 		fmt.Printf("Setting the ENV Vars GITHUB_TOKEN, ACTIONS_ID_TOKEN_REQUEST_URL, ACTIONS_ID_TOKEN_REQUEST_TOKEN to sign with GitHub Token")
 		cosing_ctr = cosing_ctr.WithSecretVariable("GITHUB_TOKEN", githubToken).
-			WithEnvVariable("ACTIONS_ID_TOKEN_REQUEST_URL", actionsIdTokenRequestUrl).
+			WithSecretVariable("ACTIONS_ID_TOKEN_REQUEST_URL", actionsIdTokenRequestUrl).
 			WithSecretVariable("ACTIONS_ID_TOKEN_REQUEST_TOKEN", actionsIdTokenRequestToken)
 	}
 
