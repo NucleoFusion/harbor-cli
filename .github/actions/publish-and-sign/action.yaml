@@ -62,8 +62,9 @@ runs:
     #     echo "DAGGER_BUILD_DIR_ARG: '$DAGGER_BUILD_DIR_ARG'"
     #     env | grep DAGGER_BUILD_DIR_ARG
 
-    - name: Publish and Sign Snapshot Image
+    - name: Publish and Sign Snapshot Image (Build Dir not present)
       uses: dagger/dagger-for-github@v7
+      if: ${{ inputs.BUILD_DIR == ""}}
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         REGISTRY_ADDRESS: ${{ inputs.REGISTRY_ADDRESS }}
@@ -73,13 +74,37 @@ runs:
       with:
         version: ${{ steps.dagger_version.outputs.version }}
         verb: call
-        args: >
-          publish-image-and-sign 
-          --progress=plain 
-          --registry=${{ env.REGISTRY_ADDRESS }} 
-          --registry-username=${{ env.REGISTRY_USERNAME }}
-          --registry-password=env://REGISTRY_PASSWORD
-          --image-tags=${{ env.IMAGE_TAGS }}
-          --github-token=env://GITHUB_TOKEN
-          --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL
-          --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN
+        args: 
+          - publish-image-and-sign \ 
+          - --progress=plain \
+          - --registry=${{ env.REGISTRY_ADDRESS }} \
+          - --registry-username=${{ env.REGISTRY_USERNAME }} \
+          - --registry-password=env://REGISTRY_PASSWORD \
+          - --image-tags=${{ env.IMAGE_TAGS }} \
+          - --github-token=env://GITHUB_TOKEN \
+          - --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL \
+          - --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+
+    - name: Publish and Sign Snapshot Image (Build Dir present)
+      uses: dagger/dagger-for-github@v7
+      if: ${{ inputs.BUILD_DIR != ""}}
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        REGISTRY_ADDRESS: ${{ inputs.REGISTRY_ADDRESS }}
+        REGISTRY_USERNAME: ${{ inputs.REGISTRY_USERNAME }}
+        REGISTRY_PASSWORD: ${{ inputs.REGISTRY_PASSWORD }}
+        IMAGE_TAGS: ${{ inputs.IMAGE_TAGS }}
+      with:
+        version: ${{ steps.dagger_version.outputs.version }}
+        verb: call
+        args: 
+          - publish-image-and-sign \ 
+          - --progress=plain \
+          - --registry=${{ env.REGISTRY_ADDRESS }} \
+          - --registry-username=${{ env.REGISTRY_USERNAME }} \
+          - --registry-password=env://REGISTRY_PASSWORD \
+          - --image-tags=${{ env.IMAGE_TAGS }} \
+          - --github-token=env://GITHUB_TOKEN \
+          - --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL \
+          - --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN \
+          - --build-dir=${{ inputs.BUILD_DIR }}"
