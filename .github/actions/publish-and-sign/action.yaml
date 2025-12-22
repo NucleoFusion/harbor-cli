@@ -45,22 +45,22 @@ runs:
       run: cosign env
  
 
-    - name: Build optional build-dir arg
-      shell: bash
-      run: |
-        if [ -n "${{ inputs.BUILD_DIR }}" ]; then
-          echo "DAGGER_BUILD_DIR_ARG=--build-dir=${{ inputs.BUILD_DIR }}" >> $GITHUB_ENV
-        else
-          echo "DAGGER_BUILD_DIR_ARG=" >> $GITHUB_ENV
-        fi
+    # - name: Build optional build-dir arg
+    #   shell: bash
+    #   run: |
+    #     if [ -n "${{ inputs.BUILD_DIR }}" ]; then
+    #       echo "DAGGER_BUILD_DIR_ARG=--build-dir=${{ inputs.BUILD_DIR }}" >> $GITHUB_ENV
+    #     else
+    #       echo "DAGGER_BUILD_DIR_ARG=" >> $GITHUB_ENV
+    #     fi
 
 
-    - name: Dump args for debugging
-      shell: bash
-      run: |
-        echo "BUILD_DIR input: '${{ inputs.BUILD_DIR }}'"
-        echo "DAGGER_BUILD_DIR_ARG: '$DAGGER_BUILD_DIR_ARG'"
-        env | grep DAGGER_BUILD_DIR_ARG
+    # - name: Dump args for debugging
+    #   shell: bash
+    #   run: |
+    #     echo "BUILD_DIR input: '${{ inputs.BUILD_DIR }}'"
+    #     echo "DAGGER_BUILD_DIR_ARG: '$DAGGER_BUILD_DIR_ARG'"
+    #     env | grep DAGGER_BUILD_DIR_ARG
 
     - name: Publish and Sign Snapshot Image
       uses: dagger/dagger-for-github@v7
@@ -83,4 +83,3 @@ runs:
           --github-token=env://GITHUB_TOKEN
           --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL
           --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN
-          ${{ env.DAGGER_BUILD_DIR_ARG }}
