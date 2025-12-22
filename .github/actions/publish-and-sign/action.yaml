@@ -83,7 +83,7 @@ runs:
           - --image-tags=${{ env.IMAGE_TAGS }} \
           - --github-token=env://GITHUB_TOKEN \
           - --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL \
-          - --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+          - --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN
 
     - name: Publish and Sign Snapshot Image (Build Dir present)
       uses: dagger/dagger-for-github@v7
@@ -107,4 +107,4 @@ runs:
           - --github-token=env://GITHUB_TOKEN \
           - --actions-id-token-request-url=env://ACTIONS_ID_TOKEN_REQUEST_URL \
           - --actions-id-token-request-token=env://ACTIONS_ID_TOKEN_REQUEST_TOKEN \
-          - --build-dir=${{ inputs.BUILD_DIR }}"
+          - --build-dir=${{ inputs.BUILD_DIR }}
