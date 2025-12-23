@@ -34,27 +34,26 @@ func (m *HarborCli) PublishImageAndSign(
 		}
 	}
 
-	return m.AppVersion, nil
-	// imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, strings.Split(imageTags, ","), buildDir, source, registryPassword)
-	// if err != nil {
-	// 	return "", err
-	// }
-	//
-	// _, err = m.Sign(
-	// 	ctx,
-	// 	githubToken,
-	// 	actionsIdTokenRequestUrl,
-	// 	actionsIdTokenRequestToken,
-	// 	registryUsername,
-	// 	registryPassword,
-	// 	imageAddrs[0],
-	// )
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to sign image: %w", err)
-	// }
-	//
-	// fmt.Printf("Signed image: %s\n", imageAddrs)
-	// return imageAddrs[0], nil
+	imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, strings.Split(imageTags, ","), buildDir, source, registryPassword)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = m.Sign(
+		ctx,
+		githubToken,
+		actionsIdTokenRequestUrl,
+		actionsIdTokenRequestToken,
+		registryUsername,
+		registryPassword,
+		imageAddrs[0],
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to sign image: %w", err)
+	}
+
+	fmt.Printf("Signed image: %s\n", imageAddrs)
+	return imageAddrs[0], nil
 }
 
 func (m *HarborCli) PublishImage(
@@ -131,7 +130,7 @@ func (m *HarborCli) PublishImage(
 			ctr := dag.Container(dagger.ContainerOpts{Platform: dagger.Platform("linux/" + arch)}).
 				From("alpine:latest").
 				WithWorkdir("/").
-				WithFile("./harbor", buildDir.File(filepath)).
+				WithFile("/harbor", buildDir.File(filepath)).
 				WithExec([]string{"ls", "-al"}).
 				WithExec([]string{"chmod", "+x", "/harbor"}).
 				WithExec([]string{"uname", "-m"}).

@@ -33,7 +33,7 @@ func (m *HarborCli) Build(ctx context.Context,
 			}
 
 			builder := dag.Container().
-				From("golang:"+m.GoVersion).
+				From("golang:"+m.GoVersion+"-alpine").
 				WithMountedCache("/go/pkg/mod", dag.CacheVolume("go-mod-"+m.GoVersion)).
 				WithEnvVariable("GOMODCACHE", "/go/pkg/mod").
 				WithMountedCache("/go/build-cache", dag.CacheVolume("go-build-"+m.GoVersion)).
