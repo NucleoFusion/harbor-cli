@@ -133,6 +133,8 @@ func (m *HarborCli) PublishImage(
 				WithFile("./harbor", buildDir.File(filepath)).
 				WithExec([]string{"ls", "-al"}).
 				WithExec([]string{"chmod", "+x", "/harbor"}).
+				WithExec([]string{"uname", "-m"}).
+				WithExec([]string{"file", "/harbor"}).
 				WithExec([]string{"./harbor", "version"}).
 				// Add required metadata labels for ArtifactHub
 				WithLabel("org.opencontainers.image.created", creationTime).
