@@ -49,8 +49,8 @@ func (m *HarborCli) Build(ctx context.Context,
 			ldflagsArgs := LDFlags(ctx, m.AppVersion, m.GoVersion, buildTime, gitCommit)
 
 			builder = builder.WithExec([]string{
-				"bash", "-c",
-				fmt.Sprintf(`set -ex && go env && go build -v -ldflags "%s" -o /bin/%s /src/cmd/harbor/main.go`, ldflagsArgs, binName),
+				"sh", "-c",
+				fmt.Sprintf(`go build -v -ldflags "%s" -o /bin/%s /src/cmd/harbor/main.go`, ldflagsArgs, binName),
 			})
 
 			file := builder.File("/bin/" + binName)                             // Taking file from container
