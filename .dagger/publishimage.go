@@ -34,26 +34,30 @@ func (m *HarborCli) PublishImageAndSign(
 		}
 	}
 
-	imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, strings.Split(imageTags, ","), buildDir, source, registryPassword)
-	if err != nil {
-		return "", err
-	}
+	return dag.Container().From("alpine:latest").WithDirectory("dist", buildDir).
+		WithWorkdir("dist").
+		WithExec([]string{"find", ".", "-type", "f"}).Stdout(ctx)
 
-	_, err = m.Sign(
-		ctx,
-		githubToken,
-		actionsIdTokenRequestUrl,
-		actionsIdTokenRequestToken,
-		registryUsername,
-		registryPassword,
-		imageAddrs[0],
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to sign image: %w", err)
-	}
-
-	fmt.Printf("Signed image: %s\n", imageAddrs)
-	return imageAddrs[0], nil
+	// imageAddrs, err := m.PublishImage(ctx, registry, registryUsername, strings.Split(imageTags, ","), buildDir, source, registryPassword)
+	// if err != nil {
+	// 	return "", err
+	// }
+	//
+	// _, err = m.Sign(
+	// 	ctx,
+	// 	githubToken,
+	// 	actionsIdTokenRequestUrl,
+	// 	actionsIdTokenRequestToken,
+	// 	registryUsername,
+	// 	registryPassword,
+	// 	imageAddrs[0],
+	// )
+	// if err != nil {
+	// 	return "", fmt.Errorf("failed to sign image: %w", err)
+	// }
+	//
+	// fmt.Printf("Signed image: %s\n", imageAddrs)
+	// return imageAddrs[0], nil
 }
 
 func (m *HarborCli) PublishImage(
