@@ -44,27 +44,9 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: cosign env
  
-
-    # - name: Build optional build-dir arg
-    #   shell: bash
-    #   run: |
-    #     if [ -n "${{ inputs.BUILD_DIR }}" ]; then
-    #       echo "DAGGER_BUILD_DIR_ARG=--build-dir=${{ inputs.BUILD_DIR }}" >> $GITHUB_ENV
-    #     else
-    #       echo "DAGGER_BUILD_DIR_ARG=" >> $GITHUB_ENV
-    #     fi
-
-
-    # - name: Dump args for debugging
-    #   shell: bash
-    #   run: |
-    #     echo "BUILD_DIR input: '${{ inputs.BUILD_DIR }}'"
-    #     echo "DAGGER_BUILD_DIR_ARG: '$DAGGER_BUILD_DIR_ARG'"
-    #     env | grep DAGGER_BUILD_DIR_ARG
-
     - name: Publish and Sign Snapshot Image (Build Dir not present)
       uses: dagger/dagger-for-github@v7
-      if: ${{ inputs.BUILD_DIR == ''}}
+      if: ${{ inputs.BUILD_DIR == '' }}
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         REGISTRY_ADDRESS: ${{ inputs.REGISTRY_ADDRESS }}
@@ -75,7 +57,7 @@ runs:
         version: ${{ steps.dagger_version.outputs.version }}
         verb: call
         args: | 
-          publish-image-and-sign \ 
+          publish-image-and-sign \
           --progress=plain \
           --registry=${{ env.REGISTRY_ADDRESS }} \
           --registry-username=${{ env.REGISTRY_USERNAME }} \
@@ -87,7 +69,7 @@ runs:
 
     - name: Publish and Sign Snapshot Image (Build Dir present)
       uses: dagger/dagger-for-github@v7
-      if: ${{ inputs.BUILD_DIR != ''}}
+      if: ${{ inputs.BUILD_DIR != '' }}
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
         REGISTRY_ADDRESS: ${{ inputs.REGISTRY_ADDRESS }}
@@ -98,7 +80,7 @@ runs:
         version: ${{ steps.dagger_version.outputs.version }}
         verb: call
         args: | 
-          publish-image-and-sign \ 
+          publish-image-and-sign \
           --progress=plain \
           --registry=${{ env.REGISTRY_ADDRESS }} \
           --registry-username=${{ env.REGISTRY_USERNAME }} \
