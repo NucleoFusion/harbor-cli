@@ -25,7 +25,7 @@ func (m *HarborCli) PublishRelease(ctx context.Context,
 		return "", err
 	}
 
-	cmd := []string{"gh", "release", "upload", m.AppVersion}
+	cmd := []string{"gh", "release", "upload", "v" + m.AppVersion}
 	cmd = append(cmd, bins...)
 	cmd = append(cmd, "/dist/checksums.txt")
 	cmd = append(cmd, "--clobber")
