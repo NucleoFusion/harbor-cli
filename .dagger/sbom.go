@@ -65,7 +65,7 @@ func (m *HarborCli) SBOM(ctx context.Context,
 				),
 			}
 
-			sbomCtr.WithExec(cmd)
+			sbomCtr = sbomCtr.WithExec(cmd)
 
 			sbomFiles = sbomFiles.WithFile(fmt.Sprintf("%s.sbom.json", archiveName), sbomCtr.File(fmt.Sprintf("/out/%s.sbom.json", archiveName)))
 		}
