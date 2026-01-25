@@ -44,9 +44,12 @@ func (m *HarborCli) SBOM(ctx context.Context,
 			}
 
 			cmd := []string{
-				"syft", fmt.Sprintf("/input/%s", archiveName),
-				"-o", "cyclonedx-json",
-				">", fmt.Sprintf("/out/%s.sbom.json", archiveName),
+				"sh", "-c",
+				fmt.Sprintf(
+					"syft /input/%s -o cyclonedx-json > /out/%s.sbom.json",
+					archiveName,
+					archiveName,
+				),
 			}
 
 			sbom := dag.Container().
@@ -55,7 +58,7 @@ func (m *HarborCli) SBOM(ctx context.Context,
 				WithMountedDirectory("/out", sbomFiles).
 				WithExec(cmd)
 
-			sbomFiles = sbomFiles.WithFile(fmt.Sprintf("%s.sbom.json", archiveName), sbom.File(fmt.Sprintf("/out/%s.sbom.json", "archiveName")))
+			sbomFiles = sbomFiles.WithFile(fmt.Sprintf("%s.sbom.json", archiveName), sbom.File(fmt.Sprintf("/out/%s.sbom.json", archiveName)))
 		}
 	}
 
