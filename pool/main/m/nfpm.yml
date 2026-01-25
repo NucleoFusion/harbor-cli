@@ -1,0 +1,13 @@
+
+name: harbor-cli
+arch: arm64
+platform: linux
+version: 0.3.4
+section: default
+priority: extra
+maintainer: "NucleoFusion <lakshit.singh.mail@gmail.com>"
+description: "Harbor CLI — a command-line interface for interacting with your Harbor container registry."
+license: Apache 2.0 
+contents:
+  - src: ./bin/harbor-cli_0.3.4_linux_arm64
+    dst: /usr/local/bin/harbor-cli
