@@ -33,6 +33,19 @@ func (m *HarborCli) SBOM(ctx context.Context,
 	goarch := []string{"amd64", "arm64"}
 
 	sbomFiles := dag.Directory()
+	sbomCtr := dag.Container().
+		From("alpine:3.19").
+		WithExec([]string{
+			"sh", "-c",
+			`
+    set -e
+    apk add --no-cache curl ca-certificates tar gzip unzip
+    curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh
+    syft --version
+    `,
+		}).
+		WithMountedDirectory("/input", buildDir.Directory("archive")).
+		WithMountedDirectory("/out", sbomFiles)
 
 	for _, os := range goos {
 		for _, arch := range goarch {
@@ -52,13 +65,9 @@ func (m *HarborCli) SBOM(ctx context.Context,
 				),
 			}
 
-			sbom := dag.Container().
-				From("anchore/syft:latest").
-				WithMountedDirectory("/input", buildDir.Directory("archive")).
-				WithMountedDirectory("/out", sbomFiles).
-				WithExec(cmd)
+			sbomCtr.WithExec(cmd)
 
-			sbomFiles = sbomFiles.WithFile(fmt.Sprintf("%s.sbom.json", archiveName), sbom.File(fmt.Sprintf("/out/%s.sbom.json", archiveName)))
+			sbomFiles = sbomFiles.WithFile(fmt.Sprintf("%s.sbom.json", archiveName), sbomCtr.File(fmt.Sprintf("/out/%s.sbom.json", archiveName)))
 		}
 	}
 
