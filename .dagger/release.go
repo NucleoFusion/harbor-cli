@@ -25,7 +25,7 @@ func (m *HarborCli) PublishRelease(ctx context.Context,
 		return "", err
 	}
 
-	sbomFiles, err := DistBinaries(ctx, dag, buildDir)
+	sbomFiles, err := DistSBOM(ctx, dag, buildDir)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +51,7 @@ func (m *HarborCli) PublishRelease(ctx context.Context,
 	return ctr.
 		WithWorkdir("/src").
 		// Creating Release
-		// WithExec([]string{"gh", "release", "create", "v" + m.AppVersion, "--generate-notes"}).
+		WithExec([]string{"gh", "release", "create", "v" + m.AppVersion, "--generate-notes"}).
 		WithExec(cmd).
 		Stdout(ctx)
 }
