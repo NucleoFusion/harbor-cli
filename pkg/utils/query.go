@@ -85,7 +85,7 @@ The following flags can be used to filter results.
 
 Supported query types:
 
-  --exact key=value
+  --match key=value
       Match an exact value.
 
   --fuzzy key=value
@@ -102,7 +102,7 @@ Supported query types:
 
 Examples:
 
-  --exact project_id=12
+  --match project_id=12
   --fuzzy name=test
   --range update_time=2024-01-01:2024-02-01
   --any tag=v1,v2
