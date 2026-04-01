@@ -20,56 +20,116 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// Builds the `q` param for List API's
-func BuildQueryParam(fuzzy, match, ranges []string, validKeys []string) (string, error) {
+// BuildQueryParam builds the `q` param for List API's
+func BuildQueryParam(fuzzy, match, ranges, all, any []string, validKeys []string) (string, error) {
 	var parts []string
+	m := map[string]bool{} // existence map for key mapping
 
 	// Fuzzy
 	for _, v := range fuzzy {
 		kv := strings.Split(v, "=")
 		if len(kv) != 2 {
-			return "", fmt.Errorf("invalid fuzzy arg: %s ", v)
+			return "", fmt.Errorf("invalid fuzzy arg: %s", v)
 		}
 
 		if err := validateKey(kv[0], validKeys); err != nil {
 			return "", err
 		}
 
+		// Checking if key already exists
+		if m[kv[0]] {
+			return "", fmt.Errorf("found duplicate key: %s", kv[0])
+		}
+
+		m[kv[0]] = true
 		parts = append(parts, fmt.Sprintf("%s=~%s", kv[0], kv[1]))
 	}
 
-	// Exact Match's
+	// Exact match
 	for _, v := range match {
 		kv := strings.Split(v, "=")
 		if len(kv) != 2 {
-			return "", fmt.Errorf("invalid match arg: %s ", v)
+			return "", fmt.Errorf("invalid match arg: %s", v)
 		}
 
 		if err := validateKey(kv[0], validKeys); err != nil {
 			return "", err
 		}
 
+		// Checking if key already exists
+		if m[kv[0]] {
+			return "", fmt.Errorf("found duplicate key: %s", kv[0])
+		}
+
+		m[kv[0]] = true
 		parts = append(parts, fmt.Sprintf("%s=%s", kv[0], kv[1]))
 	}
 
-	// Ranges
+	// Range (min~max)
 	for _, v := range ranges {
 		kv := strings.Split(v, "=")
 		if len(kv) != 2 {
-			return "", fmt.Errorf("invalid range arg: %s ", v)
+			return "", fmt.Errorf("invalid range arg: %s", v)
 		}
 
 		if err := validateKey(kv[0], validKeys); err != nil {
 			return "", err
 		}
 
-		// Validating that range is in format min~max
-		rng := strings.Split(kv[1], "~")
-		if len(rng) != 2 {
-			return "", fmt.Errorf("invalid range arg: %s ", v)
+		// Checking if key already exists
+		if m[kv[0]] {
+			return "", fmt.Errorf("found duplicate key: %s", kv[0])
 		}
 
+		rng := strings.Split(kv[1], "~")
+		if len(rng) != 2 {
+			return "", fmt.Errorf("invalid range arg: %s", v)
+		}
+
+		m[kv[0]] = true
 		parts = append(parts, fmt.Sprintf("%s=[%s~%s]", kv[0], rng[0], rng[1]))
+	}
+
+	// All
+	for _, v := range all {
+		kv := strings.Split(v, "=")
+		if len(kv) != 2 {
+			return "", fmt.Errorf("invalid all arg: %s", v)
+		}
+
+		if err := validateKey(kv[0], validKeys); err != nil {
+			return "", err
+		}
+
+		// Checking if key already exists
+		if m[kv[0]] {
+			return "", fmt.Errorf("found duplicate key: %s", kv[0])
+		}
+
+		m[kv[0]] = true
+		vals := strings.Split(kv[1], ",") // Splitting and replacing "," with " ", Harbor syntax is {v1 v2 v3}
+		parts = append(parts, fmt.Sprintf("%s={%s}", kv[0], strings.Join(vals, " ")))
+	}
+
+	// Any
+	for _, v := range any {
+		kv := strings.Split(v, "=")
+		if len(kv) != 2 {
+			return "", fmt.Errorf("invalid any arg: %s", v)
+		}
+
+		if err := validateKey(kv[0], validKeys); err != nil {
+			return "", err
+		}
+
+		// Checking if key already exists
+		if m[kv[0]] {
+			return "", fmt.Errorf("found duplicate key: %s", kv[0])
+		}
+
+		m[kv[0]] = true
+		vals := strings.Split(kv[1], ",") // Splitting and replacing "," with " ", Harbor syntax is {v1 v2 v3}
+		parts = append(parts, fmt.Sprintf("%s=(%s)", kv[0], strings.Join(vals, " ")))
 	}
 
 	return strings.Join(parts, ","), nil
@@ -104,7 +164,7 @@ Examples:
 
   --match project_id=12
   --fuzzy name=test
-  --range update_time=2024-01-01:2024-02-01
+  --range update_time=2024-01-01~2024-02-01
   --any tag=v1,v2
   --all label=prod,stable
 

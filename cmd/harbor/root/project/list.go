@@ -37,8 +37,8 @@ func ListProjectCommand() *cobra.Command {
 		fuzzy     []string
 		match     []string
 		ranges    []string
-		and       []string
-		or        []string
+		all       []string
+		any       []string
 		validKeys = []string{"name", "project_id", "public", "creation_time", "owner_id"}
 	)
 
@@ -76,7 +76,7 @@ func ListProjectCommand() *cobra.Command {
 			}
 
 			if len(fuzzy) != 0 || len(match) != 0 || len(ranges) != 0 { // Only Building Query if a param exists
-				q, qErr := utils.BuildQueryParam(fuzzy, match, ranges, validKeys)
+				q, qErr := utils.BuildQueryParam(fuzzy, match, ranges, all, any, validKeys)
 				if qErr != nil {
 					return qErr
 				}
@@ -126,7 +126,7 @@ func ListProjectCommand() *cobra.Command {
 	flags.BoolVarP(&private, "private", "", false, "Show only private projects")
 	flags.BoolVarP(&public, "public", "", false, "Show only public projects")
 	flags.StringVarP(&opts.Sort, "sort", "", "", "Sort the resource list in ascending or descending order")
-	utils.SetQueryFlags(flags, &match, &fuzzy, &ranges, &and, &or) // Adds the 5 query flags
+	utils.SetQueryFlags(flags, &match, &fuzzy, &ranges, &all, &any) // Adds the 5 query flags
 
 	return cmd
 }
