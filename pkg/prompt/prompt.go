@@ -195,15 +195,6 @@ func GetTagFromUser(repoName, projectName, reference string) string {
 	return <-tag
 }
 
-func GetTagNameFromUser() string {
-	repoName := make(chan string)
-
-	go func() {
-	}()
-
-	return <-repoName
-}
-
 func GetScannerIdFromUser() string {
 	scannerId := make(chan string)
 
@@ -336,7 +327,7 @@ func GetRobotPermissionsFromUser(kind string) ([]models.Permission, error) {
 	return result.Permissions, result.Err
 }
 
-func GetRobotIDFromUser(projectID int64) int64 {
+func GetRobotIDFromUser(projectID int64) (int64, error) {
 	robotID := make(chan int64)
 	var opts api.ListFlags
 	if projectID != -1 {
@@ -344,10 +335,25 @@ func GetRobotIDFromUser(projectID int64) int64 {
 	}
 
 	go func() {
-		response, _ := api.ListRobot(opts)
+		response, err := api.ListRobot(opts)
+		if err != nil {
+			errorCode := utils.ParseHarborErrorCode(err)
+			if errorCode == "403" {
+				fmt.Println("Permission denied: (Project) Admin privileges are required to execute this command.")
+			} else {
+				fmt.Printf("failed to list robots: %v\n", utils.ParseHarborErrorMsg(err))
+			}
+			close(robotID)
+			return
+		}
 		robotView.ListRobot(response.Payload, robotID)
 	}()
-	return <-robotID
+
+	id, ok := <-robotID
+	if !ok {
+		return 0, errors.New("failed to retrieve robot ID")
+	}
+	return id, nil
 }
 
 func GetReplicationPolicyFromUser() int64 {

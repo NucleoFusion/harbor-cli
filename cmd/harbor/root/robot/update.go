@@ -95,7 +95,10 @@ Examples:
 					return fmt.Errorf("failed to parse robot ID: %v", err)
 				}
 			} else {
-				robotID = prompt.GetRobotIDFromUser(-1)
+				robotID, err = prompt.GetRobotIDFromUser(-1)
+				if err != nil {
+					return fmt.Errorf("failed to get robot ID from user: %v", utils.ParseHarborErrorMsg(err))
+				}
 			}
 
 			// Get current robot configuration
@@ -198,10 +201,12 @@ func loadFromConfigFileForUpdate(opts *update.UpdateView, configFile string, per
 		opts.Duration = loadedOpts.Duration
 	}
 
-	var systemPermFound bool
+	if loadedOpts.Level != "system" {
+		return fmt.Errorf("invalid robot configuration: level must be 'system'. If you try to update a project-level robot, please run the `harbor-cli project robot update` command instead.")
+	}
+
 	for _, perm := range loadedOpts.Permissions {
 		if perm.Kind == "system" && perm.Namespace == "/" {
-			systemPermFound = true
 			for _, access := range perm.Access {
 				*permissions = append(*permissions, models.Permission{
 					Resource: access.Resource,
@@ -223,10 +228,6 @@ func loadFromConfigFileForUpdate(opts *update.UpdateView, configFile string, per
 			}
 			projectPermissionsMap[perm.Namespace] = validProjectPerms
 		}
-	}
-
-	if !systemPermFound {
-		return fmt.Errorf("robot configuration must include system-level permissions")
 	}
 
 	logrus.Infof("Loaded robot update with %d system permissions and %d project-specific permissions",

@@ -11,17 +11,25 @@ The **Harbor CLI** is a powerful command-line tool to interact with the [Harbor 
 
 ### Run using Container
 
-You can try the CLI immediately using Docker:
+Running Harbor CLI as a container is simple. Use the following command to get started:
 
-```bash
-docker run -ti --rm -v $HOME/.harbor/config.yaml:/root/.harbor/config.yaml registry.goharbor.io/harbor-cli/harbor-cli --help
+```shell
+docker run -ti --rm -v $HOME/.config/harbor-cli:/root/.config/harbor-cli \
+  -e HARBOR_ENCRYPTION_KEY=$(echo "ThisIsAVeryLongPassword" | base64) \
+  registry.goharbor.io/harbor-cli/harbor-cli \
+  --help
 ```
+Use the `HARBOR_ENCRYPTION_KEY` container environment variable as a base64-encoded 32-byte key for AES-256 encryption. This securely stores your harbor login password.
 
-### Alias (Optional)
+If you intend to run the CLI as a container, it is advised
+to set the following environment variables and to create an alias
+and append the alias to your .zshrc or .bashrc file
 
-```bash
-echo "alias harbor='docker run -ti --rm -v \$HOME/.harbor/config.yaml:/root/.harbor/config.yaml registry.goharbor.io/harbor-cli/harbor-cli'" >> ~/.zshrc
-source ~/.zshrc
+```shell
+echo "export HARBOR_CLI_CONFIG=\$HOME/.config/harbor-cli" >> ~/.zshrc
+echo "export HARBOR_ENCRYPTION_KEY=\$(cat <path_to_32bit_private_key_file> | base64)" >> ~/.zshrc
+echo "alias harbor='docker run -ti --rm -v \$HARBOR_CLI_CONFIG:/root/.config/harbor-cli -e HARBOR_ENCRYPTION_KEY=\$HARBOR_ENCRYPTION_KEY registry.goharbor.io/harbor-cli/harbor-cli'" >> ~/.zshrc 
+source ~/.zshrc # or restart your terminal
 ```
 
 ### Build from Source
@@ -105,13 +113,28 @@ dagger call run-doc export --path=./doc
 git commit -s -m "feat(project): add delete command for project resources"
 ```
 
-### 7. Push and Open a PR
+### 7. Push to your own fork
 
 ```bash
 git push origin feat/<your-feature-name>
 ```
 
-Then, [Open a Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) on GitHub
+### 8. Create a dedicated issue **first**
+
+Before opening a pull request, please [open a dedicated issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue) describing the problem you're solving or the feature you're proposing. This gives maintainers a chance to provide early feedback and helps avoid duplicated effort.
+
+**Pull requests without a linked issue will not be reviewed and may be closed.**
+
+### 9. Open a Pull Request
+
+Once your issue has been acknowledged, [open a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) and [link it to your issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
+
+A good PR includes:
+- A clear description of **what** changed and **why**
+- Evidence that you tested your changes (screenshots, terminal output, etc.)
+- Well-structured, readable commits
+
+> **A note on AI-generated contributions:** We appreciate the intent, but please don't submit PRs that are purely AI-generated without your own understanding and review. Drive-by PRs — especially bulk or low-effort ones produced by AI tools — add review burden for maintainers and will be closed. If you use AI to assist your work, that's fine — just make sure you understand every line you're submitting and can speak to the changes in review.
 
 ## 🧪 Running Tests
 

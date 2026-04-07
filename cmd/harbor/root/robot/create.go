@@ -132,11 +132,13 @@ func loadFromConfigFile(opts *create.CreateView, configFile string, permissions 
 	logrus.Info("Successfully loaded robot configuration")
 	*opts = *loadedOpts
 
+	if opts.Level != "system" {
+		return fmt.Errorf("invalid robot configuration: level must be 'system'. If you try to create a project-level robot, please run the `harbor-cli project robot create` command instead.")
+	}
+
 	// Extract system-level and project permissions
-	var systemPermFound bool
 	for _, perm := range opts.Permissions {
 		if perm.Kind == "system" && perm.Namespace == "/" {
-			systemPermFound = true
 			*permissions = make([]models.Permission, len(perm.Access))
 			for i, access := range perm.Access {
 				(*permissions)[i] = models.Permission{
@@ -154,10 +156,6 @@ func loadFromConfigFile(opts *create.CreateView, configFile string, permissions 
 			}
 			projectPermissionsMap[perm.Namespace] = projectPerms
 		}
-	}
-
-	if !systemPermFound {
-		return fmt.Errorf("system robot configuration must include system-level permissions")
 	}
 
 	logrus.Infof("Loaded system robot with %d system permissions and %d project-specific permissions",
@@ -189,7 +187,10 @@ func handleInteractiveInput(opts *create.CreateView, all bool, permissions *[]mo
 func getSystemPermissions(all bool, permissions *[]models.Permission) error {
 	if len(*permissions) == 0 {
 		if all {
-			perms, _ := api.GetPermissions()
+			perms, err := api.GetPermissions()
+			if err != nil {
+				return fmt.Errorf("failed to get system permissions: %v", utils.ParseHarborErrorMsg(err))
+			}
 			for _, perm := range perms.Payload.System {
 				*permissions = append(*permissions, *perm)
 			}
@@ -301,12 +302,15 @@ func buildMergedPermissions(projectPermissionsMap map[string][]models.Permission
 		})
 	}
 
-	// Add system permissions
-	mergedPermissions = append(mergedPermissions, &create.RobotPermission{
-		Namespace: "/",
-		Access:    accessesSystem,
-		Kind:      "system",
-	})
+	// check whether system permissions are included
+	if len(accessesSystem) > 0 {
+		// Add system permissions
+		mergedPermissions = append(mergedPermissions, &create.RobotPermission{
+			Namespace: "/",
+			Access:    accessesSystem,
+			Kind:      "system",
+		})
+	}
 
 	return mergedPermissions
 }
@@ -314,7 +318,12 @@ func buildMergedPermissions(projectPermissionsMap map[string][]models.Permission
 func createRobotAndHandleResponse(opts *create.CreateView, exportToFile bool) error {
 	response, err := api.CreateRobot(*opts)
 	if err != nil {
-		return fmt.Errorf("failed to create robot: %v", utils.ParseHarborErrorMsg(err))
+		errorCode := utils.ParseHarborErrorCode(err)
+		if errorCode == "403" {
+			return fmt.Errorf("Permission denied: (Project) Admin privileges are required to execute this command.")
+		} else {
+			return fmt.Errorf("failed to create robot: %v", utils.ParseHarborErrorMsg(err))
+		}
 	}
 
 	logrus.Infof("Successfully created robot account '%s' (ID: %d)",
