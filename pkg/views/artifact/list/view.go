@@ -15,14 +15,15 @@ package list
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/goharbor/go-client/pkg/sdk/v2.0/models"
+	"github.com/goharbor/harbor-cli/pkg/api"
 	"github.com/goharbor/harbor-cli/pkg/utils"
+	"github.com/goharbor/harbor-cli/pkg/views/base/loadingtablelist"
 	"github.com/goharbor/harbor-cli/pkg/views/base/tablelist"
 )
 
@@ -36,41 +37,64 @@ var columns = []table.Column{
 	{Title: "Push Time", Width: tablelist.WidthL},
 }
 
-func ListArtifacts(artifacts []*models.Artifact) {
-	var rows []table.Row
-	for _, artifact := range artifacts {
-		pushTime, _ := utils.FormatCreatedTime(artifact.PushTime.String())
-		artifactSize := utils.FormatSize(artifact.Size)
+func ListArtifacts(projectName, repoName string, opts api.ListFlags) error {
+	m := loadingtablelist.NewModel(columns, LoadArtifactList(projectName, repoName, opts))
 
-		var tagNames []string
-		for _, tag := range artifact.Tags {
-			tagNames = append(tagNames, tag.Name)
-		}
-		tags := "-"
-		if len(tagNames) > 0 {
-			tags = strings.Join(tagNames, ", ")
-		}
-
-		var totalVulnerabilities int64
-		for _, scan := range artifact.ScanOverview {
-			totalVulnerabilities += scan.Summary.Total
-		}
-
-		rows = append(rows, table.Row{
-			strconv.FormatInt(int64(artifact.ID), 10),
-			tags,
-			artifact.Digest[:16],
-			artifact.Type,
-			artifactSize,
-			strconv.FormatInt(totalVulnerabilities, 10),
-			pushTime,
-		})
+	finalModel, err := tea.NewProgram(m).Run()
+	if err != nil {
+		return fmt.Errorf("error running program: %w", err)
 	}
 
-	m := tablelist.NewModel(columns, rows, len(rows))
+	if modelErr := finalModel.(loadingtablelist.Model).Error; modelErr != nil {
+		return modelErr
+	}
 
-	if _, err := tea.NewProgram(m).Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
+	return nil
+}
+
+func LoadArtifactList(project, repo string, listOpts api.ListFlags) func() ([]table.Row, error) {
+	projectName := project
+	repoName := repo
+	opts := listOpts
+
+	return func() ([]table.Row, error) {
+		artifacts, err := api.ListArtifact(projectName, repoName, opts)
+		if err != nil {
+			return nil, fmt.Errorf("failed to list artifacts: %v", err)
+		}
+
+		time.Sleep(3 * time.Second)
+
+		var rows []table.Row
+		for _, artifact := range artifacts.Payload {
+			pushTime, _ := utils.FormatCreatedTime(artifact.PushTime.String())
+			artifactSize := utils.FormatSize(artifact.Size)
+
+			var tagNames []string
+			for _, tag := range artifact.Tags {
+				tagNames = append(tagNames, tag.Name)
+			}
+			tags := "-"
+			if len(tagNames) > 0 {
+				tags = strings.Join(tagNames, ", ")
+			}
+
+			var totalVulnerabilities int64
+			for _, scan := range artifact.ScanOverview {
+				totalVulnerabilities += scan.Summary.Total
+			}
+
+			rows = append(rows, table.Row{
+				strconv.FormatInt(int64(artifact.ID), 10),
+				tags,
+				artifact.Digest[:16],
+				artifact.Type,
+				artifactSize,
+				strconv.FormatInt(totalVulnerabilities, 10),
+				pushTime,
+			})
+		}
+
+		return rows, nil
 	}
 }

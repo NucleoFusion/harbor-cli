@@ -21,6 +21,7 @@ import (
 	"github.com/goharbor/harbor-cli/pkg/prompt"
 	"github.com/goharbor/harbor-cli/pkg/utils"
 	artifactViews "github.com/goharbor/harbor-cli/pkg/views/artifact/list"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -67,20 +68,20 @@ Supports pagination, search queries, and sorting using flags.`,
 				repoName = prompt.GetRepoNameFromUser(projectName)
 			}
 
-			artifacts, err = api.ListArtifact(projectName, repoName, opts)
-
-			if err != nil {
-				return fmt.Errorf("failed to list artifacts: %v", err)
-			}
-
 			FormatFlag := viper.GetString("output-format")
 			if FormatFlag != "" {
+				artifacts, err = api.ListArtifact(projectName, repoName, opts)
+
+				if err != nil {
+					return fmt.Errorf("failed to list artifacts: %v", err)
+				}
 				err = utils.PrintFormat(artifacts, FormatFlag)
 				if err != nil {
 					return err
 				}
 			} else {
-				artifactViews.ListArtifacts(artifacts.Payload)
+				logrus.Debugf("[LIST] OUTPUTTING LOAD MODEL")
+				artifactViews.ListArtifacts(projectName, repoName, opts)
 			}
 			return nil
 		},
