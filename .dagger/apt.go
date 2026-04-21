@@ -64,6 +64,14 @@ Description: Harbor CLI — a command-line interface for interacting with your H
 EOF`,
 	})
 
+	// CNAME File
+	container = container.WithExec([]string{
+		"bash", "-c",
+		`cat <<EOF > /CNAME
+harborcli.goharbor.io
+EOF`,
+	})
+
 	container = container.
 		WithWorkdir("/repo").
 		WithExec([]string{
