@@ -67,9 +67,7 @@ EOF`,
 	// CNAME File
 	container = container.WithExec([]string{
 		"bash", "-c",
-		`cat <<EOF > /CNAME
-harborcli.goharbor.io
-EOF`,
+		`echo 'harborcli.goharbor.io' > /CNAME`,
 	})
 
 	container = container.
