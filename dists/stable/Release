@@ -1,0 +1,7 @@
+Origin: https://github.com/nucleofusion/harbor-cli  
+Label: HarborCLI 
+Suite: stable
+Codename: stable
+Architectures: amd64 arm64
+Components: main
+Description: Harbor CLI — a command-line interface for interacting with your Harbor container registry.
