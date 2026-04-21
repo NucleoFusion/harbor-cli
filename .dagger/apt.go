@@ -54,13 +54,21 @@ func (m *HarborCli) AptBuild(ctx context.Context,
 	container = container.WithExec([]string{
 		"bash", "-c",
 		`cat <<EOF > /repo/dists/stable/Release
-Origin: https://github.com/goharbor/harbor-cli  
+Origin: https://github.com/nucleofusion/harbor-cli  
 Label: HarborCLI 
 Suite: stable
 Codename: stable
 Architectures: amd64 arm64
 Components: main
 Description: Harbor CLI — a command-line interface for interacting with your Harbor container registry.
+EOF`,
+	})
+
+	// CNAME File
+	container = container.WithExec([]string{
+		"bash", "-c",
+		`cat <<EOF > /CNAME
+harborcli.goharbor.io
 EOF`,
 	})
 
@@ -73,7 +81,7 @@ EOF`,
         cd /repo
 
         git init
-        git remote add origin https://x-access-token:$GH_TOKEN@github.com/goharbor/harbor-cli.git
+        git remote add origin https://x-access-token:$GH_TOKEN@github.com/nucleofusion/harbor-cli.git
         git checkout -B gh-pages || git checkout --orphan gh-pages
 
         git config user.name "github-actions[bot]"
