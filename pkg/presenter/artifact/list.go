@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -49,8 +48,6 @@ func LoadArtifactList(project, repo string, listOpts api.ListFlags) func() ([]ta
 		if err != nil {
 			return nil, fmt.Errorf("failed to list artifacts: %v", err)
 		}
-
-		time.Sleep(3 * time.Second)
 
 		var rows []table.Row
 		for _, artifact := range artifacts.Payload {
