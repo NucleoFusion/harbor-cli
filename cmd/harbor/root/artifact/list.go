@@ -18,10 +18,9 @@ import (
 
 	"github.com/goharbor/go-client/pkg/sdk/v2.0/client/artifact"
 	"github.com/goharbor/harbor-cli/pkg/api"
+	presenterartifact "github.com/goharbor/harbor-cli/pkg/presenter/artifact"
 	"github.com/goharbor/harbor-cli/pkg/prompt"
 	"github.com/goharbor/harbor-cli/pkg/utils"
-	artifactViews "github.com/goharbor/harbor-cli/pkg/views/artifact/list"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -80,8 +79,7 @@ Supports pagination, search queries, and sorting using flags.`,
 					return err
 				}
 			} else {
-				logrus.Debugf("[LIST] OUTPUTTING LOAD MODEL")
-				artifactViews.ListArtifacts(projectName, repoName, opts)
+				presenterartifact.ListArtifacts(projectName, repoName, opts)
 			}
 			return nil
 		},
