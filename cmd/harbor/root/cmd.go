@@ -85,7 +85,7 @@ harbor help
 		},
 	}
 
-	root.PersistentFlags().StringVarP(&output, "output-format", "o", "", "Output format. One of: json|yaml")
+	root.PersistentFlags().StringVarP(&output, "output-format", "o", "", "Output format. One of: json|yaml|csv")
 	root.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.config/harbor-cli/config.yaml)")
 	root.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 

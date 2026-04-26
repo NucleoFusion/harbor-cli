@@ -29,7 +29,7 @@ harbor help
 ```sh
   -c, --config string          config file (default is $HOME/.config/harbor-cli/config.yaml)
   -h, --help                   help for harbor
-  -o, --output-format string   Output format. One of: json|yaml
+  -o, --output-format string   Output format. One of: json|yaml|csv
   -v, --verbose                verbose output
 ```
 

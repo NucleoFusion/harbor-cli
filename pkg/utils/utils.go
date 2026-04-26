@@ -25,6 +25,7 @@ import (
 	"syscall"
 
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/gocarina/gocsv"
 	"github.com/goharbor/go-client/pkg/sdk/v2.0/client/user"
 	uview "github.com/goharbor/harbor-cli/pkg/views/user/select"
 	log "github.com/sirupsen/logrus"
@@ -61,6 +62,17 @@ func PrintPayloadInYAMLFormat(payload any) {
 	}
 
 	fmt.Println(string(yamlStr))
+}
+
+func PrintPayloadInCSVFormat(payload any) {
+	if payload == nil {
+		return
+	}
+
+	err := gocsv.Marshal(payload, os.Stdout)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ParseProjectRepo(projectRepo string) (project, repo string, err error) {
