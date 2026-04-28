@@ -1,0 +1,46 @@
+name: Update Scoop Manifest
+
+on:
+  workflow_dispatch:
+    inputs:
+      APP_NAME:
+        description: "Manifest name (without .json), e.g. myapp"
+        required: true
+
+jobs:
+  update:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout bucket repository
+        uses: actions/checkout@v4
+
+      - name: Clone Scoop
+        shell: powershell
+        run: |
+          git clone https://github.com/ScoopInstaller/Scoop.git "$env:RUNNER_TEMP\Scoop"
+
+      - name: Run checkver update
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+
+          $app = "${{ github.event.inputs.app }}"
+
+          & "$env:RUNNER_TEMP\Scoop\bin\checkver.ps1" $APP_NAME -u
+
+      - name: Commit and push changes
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if (git diff --cached --quiet) {
+            Write-Host "No changes detected."
+            exit 0
+          }
+
+          git commit -m "Update ${{ github.event.inputs.app }} manifest"
+          git push
