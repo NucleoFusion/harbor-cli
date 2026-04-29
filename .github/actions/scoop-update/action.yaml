@@ -33,4 +33,4 @@ runs:
           exit 0
         fi
         git commit -m "Update ${{ inputs.app_name }} manifest"
-        git push
+        git push origin HEAD:main
