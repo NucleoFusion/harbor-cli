@@ -1,46 +1,38 @@
 name: Update Scoop Manifest
+description: Updates a Scoop bucket manifest using checkver
 
-on:
-  workflow_dispatch:
-    inputs:
-      APP_NAME:
-        description: "Manifest name (without .json), e.g. myapp"
-        required: true
+inputs:
+  app_name:
+    description: "Manifest name (without .json), e.g. harbor-cli"
+    required: true
 
-jobs:
-  update:
-    runs-on: windows-latest
+runs:
+  using: composite
+  steps:
+    - name: Checkout bucket repository
+      uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout bucket repository
-        uses: actions/checkout@v4
+    - name: Clone Scoop
+      shell: powershell
+      run: |
+        git clone https://github.com/ScoopInstaller/Scoop.git "$env:RUNNER_TEMP\Scoop"
 
-      - name: Clone Scoop
-        shell: powershell
-        run: |
-          git clone https://github.com/ScoopInstaller/Scoop.git "$env:RUNNER_TEMP\Scoop"
+    - name: Run checkver update
+      shell: powershell
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        & "$env:RUNNER_TEMP\Scoop\bin\checkver.ps1" "${{ inputs.app_name }}" -u
 
-      - name: Run checkver update
-        shell: powershell
-        run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-
-          $app = "${{ github.event.inputs.app }}"
-
-          & "$env:RUNNER_TEMP\Scoop\bin\checkver.ps1" $APP_NAME -u
-
-      - name: Commit and push changes
-        shell: powershell
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add .
-
-          if (git diff --cached --quiet) {
-            Write-Host "No changes detected."
-            exit 0
-          }
-
-          git commit -m "Update ${{ github.event.inputs.app }} manifest"
-          git push
+    - name: Commit and push changes
+      shell: powershell
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git diff --cached --quiet
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "No changes detected."
+          exit 0
+        }
+        git commit -m "Update ${{ inputs.app_name }} manifest"
+        git push
