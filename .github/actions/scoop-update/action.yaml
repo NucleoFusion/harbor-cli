@@ -13,26 +13,24 @@ runs:
       uses: actions/checkout@v4
 
     - name: Clone Scoop
-      shell: powershell
+      shell: bash
       run: |
-        git clone https://github.com/ScoopInstaller/Scoop.git "$env:RUNNER_TEMP\Scoop"
+        git clone https://github.com/ScoopInstaller/Scoop.git "$RUNNER_TEMP/Scoop"
 
     - name: Run checkver update
-      shell: powershell
+      shell: pwsh
       run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        & "$env:RUNNER_TEMP\Scoop\bin\checkver.ps1" "${{ inputs.app_name }}" -u
+        & "$env:RUNNER_TEMP/Scoop/bin/checkver.ps1" "${{ inputs.app_name }}" -u
 
     - name: Commit and push changes
-      shell: powershell
+      shell: bash
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
-        git diff --cached --quiet
-        if ($LASTEXITCODE -eq 0) {
-          Write-Host "No changes detected."
+        if git diff --cached --quiet; then
+          echo "No changes detected."
           exit 0
-        }
+        fi
         git commit -m "Update ${{ inputs.app_name }} manifest"
         git push
