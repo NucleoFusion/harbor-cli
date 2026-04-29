@@ -20,7 +20,7 @@ runs:
     - name: Run checkver update
       shell: pwsh
       run: |
-        & "$env:RUNNER_TEMP/Scoop/bin/checkver.ps1" "${{ inputs.app_name }}" -u
+        & "$env:RUNNER_TEMP/Scoop/bin/checkver.ps1" "${{ inputs.app_name }}" -Dir "bucket" -u
 
     - name: Commit and push changes
       shell: bash
