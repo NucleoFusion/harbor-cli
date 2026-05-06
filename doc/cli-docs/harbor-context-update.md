@@ -10,7 +10,7 @@ weight: 10
 
 ### Synopsis
 
-Set/update the value of a specific CLI config item. 
+Set/update the value of a specific CLI config item.
 Case-insensitive field lookup, but uses the canonical (Go) field name internally.
 If you specify --name, that credential (rather than the "current" one) will be updated.
 
@@ -41,7 +41,7 @@ harbor context update <item> <value> [flags]
 
 ```sh
   -c, --config string          config file (default is $HOME/.config/harbor-cli/config.yaml)
-  -o, --output-format string   Output format. One of: json|yaml
+  -o, --output-format string   Output format. One of: json|yaml|csv
   -v, --verbose                verbose output
 ```
 

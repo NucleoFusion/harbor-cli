@@ -17,7 +17,7 @@ information about each robot account, such as ID, name, creation time, and
 expiration status.
 
 System-level robots have permissions that can span across multiple projects, making
-them suitable for CI/CD pipelines and automation tasks that require access to 
+them suitable for CI/CD pipelines and automation tasks that require access to
 multiple projects in Harbor.
 
 You can control the output using pagination flags and format options:
@@ -60,7 +60,7 @@ harbor robot list [projectName] [flags]
 
 ```sh
   -c, --config string          config file (default is $HOME/.config/harbor-cli/config.yaml)
-  -o, --output-format string   Output format. One of: json|yaml
+  -o, --output-format string   Output format. One of: json|yaml|csv
   -v, --verbose                verbose output
 ```
 

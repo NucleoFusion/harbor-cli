@@ -15,7 +15,7 @@ harbor user create [flags]
 ### Options
 
 ```sh
-      --comment string    Comment
+      --comment string    Comment (optional)
       --email string      Email
   -h, --help              help for create
       --password string   Password
@@ -27,7 +27,7 @@ harbor user create [flags]
 
 ```sh
   -c, --config string          config file (default is $HOME/.config/harbor-cli/config.yaml)
-  -o, --output-format string   Output format. One of: json|yaml
+  -o, --output-format string   Output format. One of: json|yaml|csv
   -v, --verbose                verbose output
 ```
 

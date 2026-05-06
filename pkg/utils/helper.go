@@ -25,6 +25,13 @@ import (
 	"unicode"
 )
 
+func pluralise(value int, unit string) string {
+	if value == 1 {
+		return fmt.Sprintf("%d %s ago", value, unit)
+	}
+	return fmt.Sprintf("%d %ss ago", value, unit)
+}
+
 func FormatCreatedTime(timestamp string) (string, error) {
 	t, err := time.Parse(time.RFC3339Nano, timestamp)
 	if err != nil {
@@ -38,11 +45,11 @@ func FormatCreatedTime(timestamp string) (string, error) {
 	days := int(duration.Hours() / 24)
 
 	if minutes < 60 {
-		return fmt.Sprintf("%d minute ago", minutes), nil
+		return pluralise(minutes, "minute"), nil
 	} else if hours < 24 {
-		return fmt.Sprintf("%d hour ago", hours), nil
+		return pluralise(hours, "hour"), nil
 	} else {
-		return fmt.Sprintf("%d day ago", days), nil
+		return pluralise(days, "day"), nil
 	}
 }
 
@@ -104,7 +111,7 @@ func ValidateFL(name string) bool {
 	return re.MatchString(name)
 }
 
-// check if the password format is vaild
+// check if the password format is valid
 func ValidatePassword(password string) error {
 	password = strings.TrimSpace(password)
 	if password == "" {
@@ -112,21 +119,21 @@ func ValidatePassword(password string) error {
 	}
 
 	if len(password) < 8 || len(password) > 256 {
-		return errors.New("worong! the password length must be at least 8 characters and at most 256 characters")
+		return errors.New("wrong! the password length must be at least 8 characters and at most 256 characters")
 	}
 	// checking the password has a minimum of one lower case letter
 	if done, _ := regexp.MatchString("([a-z])+", password); !done {
-		return errors.New("worong! the password doesn't have a lowercase letter")
+		return errors.New("wrong! the password doesn't have a lowercase letter")
 	}
 
-	// checking the password has a minimmum of one upper case letter
+	// checking the password has a minimum of one upper case letter
 	if done, _ := regexp.MatchString("([A-Z])+", password); !done {
-		return errors.New("worong! the password doesn't have an upppercase letter")
+		return errors.New("wrong! the password doesn't have an uppercase letter")
 	}
 
 	// checking if the password has a minimum of one digit
 	if done, _ := regexp.Match("([0-9])+", []byte(password)); !done {
-		return errors.New("worong! the password doesn't have a digit number")
+		return errors.New("wrong! the password doesn't have a digit number")
 	}
 
 	return nil
@@ -170,6 +177,8 @@ func ValidateRegistryName(rn string) bool {
 	return re.MatchString(rn)
 }
 
+// ValidateURL checks if the URL has valid format, non-empty host, and host is a valid IP or domain.
+// Domain regex: labels must start/end with alphanumeric, can contain hyphens, max 63 chars, TLD min 2 letters.
 func ValidateURL(rawURL string) error {
 	var domainNameRegex = regexp.MustCompile(`^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$`)
 
@@ -187,6 +196,10 @@ func ValidateURL(rawURL string) error {
 		return nil
 	}
 
+	if host == "localhost" {
+		return nil
+	}
+
 	if !domainNameRegex.MatchString(host) {
 		return fmt.Errorf("invalid host: must be a valid IP address or domain name")
 	}
@@ -201,6 +214,10 @@ func PrintFormat[T any](resp T, format string) error {
 	}
 	if format == "yaml" {
 		PrintPayloadInYAMLFormat(resp)
+		return nil
+	}
+	if format == "csv" {
+		PrintPayloadInCSVFormat(resp)
 		return nil
 	}
 	return fmt.Errorf("unable to output in the specified '%s' format", format)

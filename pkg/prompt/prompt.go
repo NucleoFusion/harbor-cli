@@ -164,15 +164,18 @@ func GetReferenceFromUser(repositoryName string, projectName string) string {
 	return <-reference
 }
 
-func GetUserIdFromUser() int64 {
-	userId := make(chan int64)
+func GetUserIdFromUser() (int64, error) {
+	response, err := api.ListUsers()
+	if err != nil {
+		return 0, err
+	}
 
-	go func() {
-		response, _ := api.ListUsers()
-		uview.UserList(response.Payload, userId)
-	}()
+	id, err := uview.UserList(response.Payload)
+	if err != nil {
+		return 0, err
+	}
 
-	return <-userId
+	return id, nil
 }
 
 func GetImmutableTagRule(projectName string) int64 {
@@ -191,15 +194,6 @@ func GetTagFromUser(repoName, projectName, reference string) string {
 		tview.ListTags(response.Payload, tag)
 	}()
 	return <-tag
-}
-
-func GetTagNameFromUser() string {
-	repoName := make(chan string)
-
-	go func() {
-	}()
-
-	return <-repoName
 }
 
 func GetScannerIdFromUser() string {
@@ -317,16 +311,24 @@ func GetActiveContextFromUser() (string, error) {
 	return res, nil
 }
 
-func GetRobotPermissionsFromUser(kind string) []models.Permission {
-	permissions := make(chan []models.Permission)
+func GetRobotPermissionsFromUser(kind string) ([]models.Permission, error) {
+	permissions := make(chan robotView.PermissionSelectResult)
 	go func() {
-		response, _ := api.GetPermissions()
+		response, err := api.GetPermissions()
+		if err != nil {
+			permissions <- robotView.PermissionSelectResult{
+				Permissions: nil,
+				Err:         err,
+			}
+			return
+		}
 		robotView.ListPermissions(response.Payload, kind, permissions)
 	}()
-	return <-permissions
+	result := <-permissions
+	return result.Permissions, result.Err
 }
 
-func GetRobotIDFromUser(projectID int64) int64 {
+func GetRobotIDFromUser(projectID int64) (int64, error) {
 	robotID := make(chan int64)
 	var opts api.ListFlags
 	if projectID != -1 {
@@ -334,10 +336,25 @@ func GetRobotIDFromUser(projectID int64) int64 {
 	}
 
 	go func() {
-		response, _ := api.ListRobot(opts)
+		response, err := api.ListRobot(opts)
+		if err != nil {
+			errorCode := utils.ParseHarborErrorCode(err)
+			if errorCode == "403" {
+				fmt.Println("Permission denied: (Project) Admin privileges are required to execute this command.")
+			} else {
+				fmt.Printf("failed to list robots: %v\n", utils.ParseHarborErrorMsg(err))
+			}
+			close(robotID)
+			return
+		}
 		robotView.ListRobot(response.Payload, robotID)
 	}()
-	return <-robotID
+
+	id, ok := <-robotID
+	if !ok {
+		return 0, errors.New("failed to retrieve robot ID")
+	}
+	return id, nil
 }
 
 func GetReplicationPolicyFromUser() int64 {

@@ -12,7 +12,7 @@ weight: 40
 
 Refresh the secret for an existing robot account in Harbor.
 
-This command generates a new secret for a robot account, effectively revoking 
+This command generates a new secret for a robot account, effectively revoking
 the old secret and requiring updates to any systems using the robot's credentials.
 
 The command supports multiple ways to identify the robot account:
@@ -63,7 +63,7 @@ harbor robot refresh [robotID] [flags]
 
 ```sh
   -c, --config string          config file (default is $HOME/.config/harbor-cli/config.yaml)
-  -o, --output-format string   Output format. One of: json|yaml
+  -o, --output-format string   Output format. One of: json|yaml|csv
   -v, --verbose                verbose output
 ```
 

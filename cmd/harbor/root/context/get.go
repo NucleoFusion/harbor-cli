@@ -22,7 +22,7 @@ import (
 	"github.com/goharbor/harbor-cli/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v4"
 )
 
 // GetConfigItemCommand creates the 'harbor config get' subcommand.
@@ -155,7 +155,7 @@ func getNestedValue(obj interface{}, path []string, actualSegments *[]string) (i
 
 	for _, key := range path {
 		// If it's a pointer, dereference
-		if current.Kind() == reflect.Ptr {
+		if current.Kind() == reflect.Pointer {
 			current = current.Elem()
 		}
 		if current.Kind() != reflect.Struct {
@@ -189,7 +189,7 @@ func getNestedValue(obj interface{}, path []string, actualSegments *[]string) (i
 	}
 
 	// Finally, if we ended on a pointer, dereference it
-	if current.Kind() == reflect.Ptr {
+	if current.Kind() == reflect.Pointer {
 		current = current.Elem()
 	}
 	return current.Interface(), nil

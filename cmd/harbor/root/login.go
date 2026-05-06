@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/goharbor/go-client/pkg/harbor"
 	"github.com/goharbor/go-client/pkg/sdk/v2.0/client/user"
@@ -49,7 +50,7 @@ func LoginCommand() *cobra.Command {
 
 			if passwordStdin {
 				fmt.Print("Password: ")
-				passwordBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
+				passwordBytes, err := term.ReadPassword(int(os.Stdin.Fd())) // #nosec G115 - fd fits in int on all supported platforms
 				if err != nil {
 					return fmt.Errorf("failed to read password from stdin: %v", err)
 				}
@@ -129,13 +130,15 @@ func RunLogin(opts login.LoginView) error {
 	}
 	err := utils.ValidateURL(opts.Server)
 	if err != nil {
-		return fmt.Errorf("invalid server URL: %s", err)
+		return fmt.Errorf("invalid server URL: %w", err)
 	}
 	client := utils.GetClientByConfig(clientConfig)
 	ctx := context.Background()
 	_, err = client.User.GetCurrentUserInfo(ctx, &user.GetCurrentUserInfoParams{})
 	if err != nil {
-		return fmt.Errorf("%v", utils.ParseHarborErrorMsg(err))
+		if !strings.Contains(err.Error(), "status 412") {
+			return fmt.Errorf("%v", utils.ParseHarborErrorMsg(err))
+		}
 	}
 	if err := utils.GenerateEncryptionKey(); err != nil {
 		fmt.Println("Encryption key already exists or could not be created:", err)
